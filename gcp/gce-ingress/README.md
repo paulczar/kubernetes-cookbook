@@ -15,25 +15,38 @@ Before running helm though you'll need to collect some information about both yo
 
 ## Create values.yaml
 
-Create a values.yaml file (use [values.yaml](https://raw.githubusercontent.com/helm/charts/master/stable/gce-ingress/values.yaml) as a template):
-
-```bash
-$ wget https://raw.githubusercontent.com/helm/charts/master/stable/gce-ingress/values.yaml
-```
-
-Set the following values which will tell it to read credentials from a secret, will give the resources human friendly names and restrict the resources available to the pods which should be fairly light:
+Create a values.yaml file:
 
 ```yaml
+## Set human friendly names for the ingress controller
 nameOverride: "ingress-controller"
 fullnameOverride: "ingress-controller"
+
+## Enable RBAC
+rbac:
+  enabled: true
+
+## set a secret name for the gcloud credentials
 secret: ingress-controller-credentials
 
+## gce config, replace values to match your environment
+config:
+  projectID: <google cloud project ID>
+  network: <network in which kubernetes is installed>
+  subnetwork: <subnet in which kubernetes is installed>
+  # a common prefix for your nodes, probably `vm-` but check
+  # in the google cloud console.
+  nodeInstancePrefix: vm-
+  # a common tag for your worker nodes, put the clusters UUID
+  # which you can get from the pks CLI.
+  nodeTags: service-instance-<pks cluster UUID>-worker
+
+## restrict resources for pods
 controller:
   resources:
      requests:
       cpu: 10m
       memory: 50Mi
-
 defaultBackend:
   resources:
     limits:
@@ -44,26 +57,11 @@ defaultBackend:
       memory: 20Mi
 ```
 
-Next set your GCP specific values.  You should know the values to set based on how you installed PKS, but if not, they're pretty easy to find in the google cloud console.
-
-```yaml
-config:
-  projectID: <google cloud project ID>
-  network: <network in which kubernetes is installed>
-  subnetwork: <subnet in which kubernetes is installed>
-  # a common prefix for your nodes
-  nodeInstancePrefix: vm-
-  # a common tag for your worker nodes.
-  nodeTags: service-instance-<pks cluster UUID>-worker
-  # tokenUrl should probably be left as nil
-  tokenUrl: "nil"
-```
-
-## Use helm to deploy:
+## Use helm to deploy
 
 Use helm to install the ingress controller in a namespace that you can restrict access to (since it will use a secret that contains auth to your gcloud account). Some people like to use the existing `kube-system` namespace, but it's good to be more explicit and give it its own namespace of `ingress-controller`.
 
-```
+```bash
 $ helm install --namespace ingress-controller -n ingress-controller \
   --values values.yaml stable/gce-ingress
 
@@ -101,17 +99,62 @@ ingress-controller-97c895599-w8twn            1/1       Running   0          11m
 ingress-controller-backend-78bd8bd8c9-xl79n   1/1       Running   0          11m
 ```
 
-Test it out by running an nginx pod and exposing it via an ingress rule in the default namespace:
+Create a Kubernetes manifest containing a deployment, service, and ingress for a basic nginx application:
+
+__manifest.yaml__
+```yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: example
+  name: example
+spec:
+  selector:
+    matchLabels:
+      run: example
+  template:
+    metadata:
+      labels:
+        run: example
+    spec:
+      containers:
+      - image: nginx:1.13.5-alpine
+        imagePullPolicy: IfNotPresent
+        name: example
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: example
+  name: example
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: example
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: example
+spec:
+  backend:
+    serviceName: example
+    servicePort: 80
+```
+
+Deploy the newly created manifest:
 
 ```bash
-$ kubectl apply \
--f https://raw.githubusercontent.com/paulczar/pks-demos/master/gce-ingress/example/deployment.yaml \
--f https://raw.githubusercontent.com/paulczar/pks-demos/master/gce-ingress/example/ingress.yaml \
--f https://raw.githubusercontent.com/paulczar/pks-demos/master/gce-ingress/example/service.yaml
-deployment.extensions/example created
-ingress.extensions/example created
-service/example created
-
+$ kubectl apply manifest.yaml
+deployment example created
+service example created
+ingress example created
 ```
 
 After a few minutes you should see your deployment running and an address attached to the ingress resource:
