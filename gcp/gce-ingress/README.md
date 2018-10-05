@@ -4,7 +4,7 @@ By default PKS is installed to GCP without an ingress controller leaving this up
 
 Fortunately there is a [helm chart](https://github.com/helm/charts/tree/master/stable/gce-ingress) that will do most of the heavy lifting for you.
 
-Before running helm though you'll need to collect some information about both your GCP account and your PKS cluster for helm to use.  See [values.yaml](values.yaml) for an example.
+Before running helm though you'll need to collect some information about both your GCP account and your PKS cluster for helm to use.
 
 ## Pre-Requisites
 
