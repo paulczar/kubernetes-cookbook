@@ -1,14 +1,14 @@
-# GCP Native Ingress Controller for PKS on Google Cloud
+# Google Cloud Native Ingress Controller
 
-By default PKS is installed to GCP without an ingress controller leaving this up to the deployer of the cluster to do themselves. As the operator you can choose to install any of the ingress controllers that you like, it makes a lot of sense to use the native controller that manages GCP loadbalancers and URL maps.
+Google Kubernetes Engine (GKE) includes the native GCP Ingress controller support that uses Google Cloud Loadbalancers and its supporting services for Ingress resources.
+
+However GKE is not the only way to get Kubernetes on GCP and there may be several reasons to deploy your own Ingress Controller utilizing GCP native services.
 
 Fortunately there is a [helm chart](https://github.com/helm/charts/tree/master/stable/gce-ingress) that will do most of the heavy lifting for you.
 
-Before running helm though you'll need to collect some information about both your GCP account and your PKS cluster for helm to use.
-
 ## Pre-Requisites
 
-* You'll need a PKS cluster installed onto GCP and the `helm` client.
+* You'll need a Kubernetes cluster installed onto GCP and the `helm` client.
 * Ensure that `kubectl get nodes` responds correctly to ensure your cluster is working and responding.
 * Ensure that `helm version` shows that tiller is installed on your cluster.
 * You'll also need a google account and a working understanding of how to navigate the UI or CLI to obtain details and create service accounts.
@@ -37,7 +37,8 @@ config:
   # a common prefix for your nodes, probably `vm-` but check
   # in the google cloud console.
   nodeInstancePrefix: vm-
-  # a common tag for your worker nodes, put the clusters UUID
+  # a common tag for your worker nodes, the following is what
+  # you would use for PKS (using the clusters UUID).
   # which you can get from the pks CLI.
   nodeTags: service-instance-<pks cluster UUID>-worker
 
@@ -200,4 +201,4 @@ curl 35.201.78.41
 
 ## Conclusion
 
-Congratulations you've successfully installed and used the GCP Ingress Controller on your PKS (or other) Kubernetes cluster running on Google Cloud.
+Congratulations you've successfully installed and used the GCP Ingress Controller on your Kubernetes cluster running on Google Cloud.

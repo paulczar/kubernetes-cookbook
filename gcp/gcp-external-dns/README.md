@@ -1,8 +1,8 @@
-# External-DNS using GCP Cloud DNS for PKS
+# External-DNS using GCP Cloud DNS
 
 Currently When you create LoadBalancers and Ingress resources on Kubernetes you likely want to go and update DNS records to point at the external IP provided, or alternatively you may pre-register an external IP and code that in your resource.  Either way its a multistep process.
 
-Fortunately there is a Kubernetes controller [external-dns](https://github.com/kubernetes-incubator/external-dns) which can automatically create DNS records from a number of different DNS providers based on services and ingress resources.  There's even a [helm chart](https://github.com/helm/charts/tree/master/stable/external-dns) that will do most of the heavy lifting for you.
+Fortunately there is a Kubernetes add-on [external-dns](https://github.com/kubernetes-incubator/external-dns) which can automatically create DNS records from a number of different DNS providers based on services and ingress resources.  There's even a [helm chart](https://github.com/helm/charts/tree/master/stable/external-dns) that will do most of the heavy lifting for you.
 
 This recipe will take you through using Helm to set up the external-dns controller to manage GCP DNS records.
 
@@ -10,11 +10,11 @@ Before running helm though you'll need to collect some information about both yo
 
 ## Pre-Requisites
 
-* You'll need a PKS cluster running and the `helm` client installed locally.
+* You'll need a Kubernetes cluster running and the `helm` client installed locally.
 * Ensure that `kubectl get nodes` responds correctly to ensure your cluster is working and responding.
 * Ensure that `helm version` shows that tiller is installed on your cluster.
 * You'll also need a google account and a working understanding of how to navigate the UI or CLI to obtain details and create service accounts.
-* You'll also need a working ingress controller (see [pks-cookbook/gce-ingress](https://github.com/paulczar/pks-cookbook/tree/master/gce-ingress) for an example for setting up ingress on GCP).
+* You'll also need a working ingress controller (see [gcp/gce-ingress](https://github.com/paulczar/kubernetes-cookbook/tree/master/gcp/gce-ingress) for an example for setting up native ingress on GCP).
 
 ## Create values.yaml
 
@@ -168,4 +168,4 @@ $ curl app.example.demo
 
 ## Conclusion
 
-Congratulations you've successfully installed and used the external-dns controller on your PKS (or other) Kubernetes cluster running on Google Cloud.
+Congratulations you've successfully installed and used the external-dns controller on your Kubernetes cluster integrated with Google Cloud DNS.
