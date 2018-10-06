@@ -17,9 +17,9 @@ _Examples that should work across all distributions_
 
 ## Kubernetes on Google Cloud (not limited to GKE)
 
-1. [GCP Cloud DNS with the external-dns Controller](pks/gcp-external-dns/README.md)
+1. [GCP Cloud DNS with the external-dns Controller](gcp/gcp-external-dns/README.md)
 1. [Manage Certificates with the cert-manager addon](gcp/cert-manager/README.md)
-1. [GCP Native Ingress Controller](pks/gce-ingress/README.md)
+1. [GCP Native Ingress Controller](gcp/gce-ingress/README.md)
 
 ## Kubernetes on Amazon Web Services ( not limited to EKS)
 
